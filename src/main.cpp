@@ -27,7 +27,6 @@ void processInput(GLFWwindow *window);
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 
-// Pomocne funkcije
 unsigned int loadCubemap(vector<std::string> faces);
 
 // settings
@@ -134,7 +133,6 @@ int main() {
     }
     glfwMakeContextCurrent(window);
 
-    // Postavljanje callback funkcija (mis, tastatura itd)
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
@@ -168,7 +166,7 @@ int main() {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330 core");
 
-    glEnable(GL_DEPTH_TEST);        // Objekti na sceni trebaju biti ispred skybox-a
+    glEnable(GL_DEPTH_TEST);
 
     // build and compile shaders
     // -------------------------
@@ -180,22 +178,18 @@ int main() {
 //    Model ourModel("resources/objects/backpack/backpack.obj");
 //    ourModel.SetShaderTextureNamePrefix("material.");
 
-//    Model ourModel("resources/objects/earth/Earth.obj");        // RADI
-//    ourModel.SetShaderTextureNamePrefix("material.");
-//    Model ourModel("resources/objects/rocket/Toy_Rocket.obj");    // RADI
-//    ourModel.SetShaderTextureNamePrefix("material.");
-//    Model ourModel("resources/objects/astronaut/Astronaut.obj");    // RADI
-//    ourModel.SetShaderTextureNamePrefix("material.");
-//    Model ourModel("resources/objects/mars/Mars_2K.obj");       // RADI
-//    ourModel.SetShaderTextureNamePrefix("material.");
-
-    Model ourModel("resources/objects/rocket/Toy_Rocket.obj");
-    ourModel.SetShaderTextureNamePrefix("material.");
+    Model modelEarth("resources/objects/earth/Earth.obj");
+    modelEarth.SetShaderTextureNamePrefix("material.");
+    Model modelRocket("resources/objects/rocket/Toy_Rocket.obj");
+    modelRocket.SetShaderTextureNamePrefix("material.");
+    Model modelAstronaut("resources/objects/astronaut/Astronaut.obj");
+    modelAstronaut.SetShaderTextureNamePrefix("material.");
+    Model modelMars("resources/objects/mars/Mars_2K.obj");
+    modelMars.SetShaderTextureNamePrefix("material.");
 
 
 
     //------------------------------------ SKYBOX ------------------------------------
-    // Skybox ("kutija" 1x1x1)
     float skyboxVertices[] = {
         // positions
         -1.0f,  1.0f, -1.0f,
@@ -250,7 +244,6 @@ int main() {
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
-    // Ucitavanje tekstura za skybox
     vector<std::string> faces = {
         FileSystem::getPath("resources/textures/skybox/_front.png"),
         FileSystem::getPath("resources/textures/skybox/_back.png"),
@@ -269,15 +262,15 @@ int main() {
 
 
     PointLight& pointLight = programState->pointLight;
-    pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
+    pointLight.position = glm::vec3(4.0f, 4.0, -10.0);
     pointLight.ambient = glm::vec3(0.7, 0.7, 0.7);
     pointLight.diffuse = glm::vec3(0.6, 0.6, 0.6);
     pointLight.specular = glm::vec3(1.0, 1.0, 1.0);
 
     pointLight.constant = 1.0f;
     pointLight.linear = 0.09f;
-    pointLight.quadratic = 0.032f;
-
+//    pointLight.quadratic = 0.032f;
+    pointLight.quadratic = 0.0f;
 
 
     // draw in wireframe
@@ -321,15 +314,42 @@ int main() {
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
 
-        // render the loaded model
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model,
-                               programState->backpackPosition); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(programState->backpackScale));    // it's a bit too big for our scene, so scale it down
-//        model = glm::translate(model, glm::vec3(0.0f, 3.0f, -20.0f));
-//        model = glm::scale(model, glm::vec3(0.01f));
-        ourShader.setMat4("model", model);
-        ourModel.Draw(ourShader);
+        //------------------------------------ MODEL RENDERING  ------------------------------------
+        // modelEarth
+        glm::mat4 modelMatrixEarth = glm::mat4(1.0f);
+        modelMatrixEarth = glm::translate(modelMatrixEarth, glm::vec3(0.0f, -5.0f, -25.0f));
+        modelMatrixEarth = glm::scale(modelMatrixEarth, glm::vec3(4.5f));
+        modelMatrixEarth = glm::rotate(modelMatrixEarth, glm::radians(170.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        modelMatrixEarth = glm::rotate(modelMatrixEarth, glm::radians(-40.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        ourShader.setMat4("model", modelMatrixEarth);
+        modelEarth.Draw(ourShader);
+
+        glm::mat4 modelMatrixRocket= glm::mat4(1.0f);
+        modelMatrixRocket = glm::translate(modelMatrixRocket, glm::vec3(8.0f, 1.9f, -20.0f));
+        modelMatrixRocket = glm::scale(modelMatrixRocket, glm::vec3(0.7f));
+        modelMatrixRocket = glm::rotate(modelMatrixRocket, glm::radians(-50.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        ourShader.setMat4("model", modelMatrixRocket);
+        modelRocket.Draw(ourShader);
+
+        glm::mat4 modelMatrixMars = glm::mat4(1.0f);
+        modelMatrixMars = glm::translate(modelMatrixMars, glm::vec3(35.0f, 8.0f, -15.0f));
+        modelMatrixMars = glm::scale(modelMatrixMars, glm::vec3(1.4f));
+        ourShader.setMat4("model", modelMatrixMars);
+        modelMars.Draw(ourShader);
+
+        glm::mat4 modelMatrixAstronaut = glm::mat4(1.0f);
+        modelMatrixAstronaut = glm::translate(modelMatrixAstronaut, glm::vec3(34.5f, 12.7f, -14.0f));
+        modelMatrixAstronaut = glm::scale(modelMatrixAstronaut, glm::vec3(0.15f));
+        modelMatrixAstronaut = glm::rotate(modelMatrixAstronaut, glm::radians(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        ourShader.setMat4("model", modelMatrixAstronaut);
+        modelAstronaut.Draw(ourShader);
+
+        glm::mat4 modelMatrixAstronaut2 = glm::mat4(1.0f);
+        modelMatrixAstronaut2 = glm::translate(modelMatrixAstronaut2, glm::vec3(34.9f, 12.7f, -14.0f));
+        modelMatrixAstronaut2 = glm::scale(modelMatrixAstronaut2, glm::vec3(0.15f));
+        modelMatrixAstronaut2 = glm::rotate(modelMatrixAstronaut2, glm::radians(-30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        ourShader.setMat4("model", modelMatrixAstronaut2);
+        modelAstronaut.Draw(ourShader);
 
 
         //------------------------------------ SKYBOX ------------------------------------
@@ -338,13 +358,12 @@ int main() {
         view = glm::mat4(glm::mat3(programState->camera.GetViewMatrix()));
         skyboxShader.setMat4("view", view);
         skyboxShader.setMat4("projection", projection);
-        // skybox cube
         glBindVertexArray(skyboxVAO);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
-        glDepthFunc(GL_LESS); // set depth function back to default
+        glDepthFunc(GL_LESS);
         //------------------------------------ SKYBOX ------------------------------------
 
 
@@ -405,13 +424,13 @@ void processInput(GLFWwindow *window) {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)   // ESC => terminate
         glfwSetWindowShouldClose(window, true);
 
-    if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)                    // W => Pomeri se napred
+    if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         programState->camera.ProcessKeyboard(FORWARD, deltaTime);
-    if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)                    // S => Pomeri se nazad
+    if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
         programState->camera.ProcessKeyboard(BACKWARD, deltaTime);
-    if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)                    // A => Pomeri se levo
+    if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
         programState->camera.ProcessKeyboard(LEFT, deltaTime);
-    if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)                    // D => Pomeri se desno
+    if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         programState->camera.ProcessKeyboard(RIGHT, deltaTime);
 }
 
@@ -442,7 +461,6 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
     xoffset *= sensitivity;
     yoffset *= sensitivity;
 
-    // Ako smes da pomeras scenu misem onda update scenu (npr. ako je GUI ukljucen onda ne treba vrsiti update scene (kamere))
     if(programState->CameraMouseMovementUpdateEnabled)
         programState->camera.ProcessMouseMovement(xoffset, yoffset);
 }
@@ -490,11 +508,11 @@ void DrawImGui(ProgramState *programState) {
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_F1 && action == GLFW_PRESS) {
         programState->ImGuiEnabled = !programState->ImGuiEnabled;
-        if(programState->ImGuiEnabled) {    // Ukoliko je GUI otvoren radi sledece
-            programState->CameraMouseMovementUpdateEnabled = false;                     // Ne pomeraj scenu (kameru) na pokret misa
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);      // Prikazi kursor
+        if(programState->ImGuiEnabled) {
+            programState->CameraMouseMovementUpdateEnabled = false;
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         } else {
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);    // Ukloni kursor sa ekrana
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         }
     }
 }
