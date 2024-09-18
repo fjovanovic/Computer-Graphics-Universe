@@ -25,6 +25,13 @@ The models of a rocket and an astronaut are placed in boxes where the effects of
     - The rest was built in [Photoshop-u](https://www.adobe.com/products/photoshop.html)
 
 
+## Problems with models
+  - If the model is loading but the texture is not, check if the `.mtl` file is present
+  - Check if the texture is located under the mapping coordinates `map_Kd texture_name.ext`
+  - Verify that the correct textures are mapped to the appropriate coordinates
+  - Check the paths to the textures, as relative paths are based on the location of the `.mtl` file
+
+
 ## Lectures implementation
 - Required lectures:
   - [x] weeks 1-8
