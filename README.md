@@ -4,6 +4,27 @@ The scene displays models of the Sun, Moon and Mars.
 The models of a rocket and an astronaut are placed in boxes where the effects of [Blending-a](https://learnopengl.com/Advanced-OpenGL/Blending) and [Face culling-a](https://learnopengl.com/Advanced-OpenGL/Face-culling) have been applied.
 
 
+## Interaction
+  - `W`, `A`, `S`, `D` - Moving on the scene
+  - `F1` - Menu (GUI)
+  - `F1->HDR` - HDR effect activation
+  - `F1->Bloom` - Bloom effect activation
+  - `B` - Change between Phong and Blinn-Phong model (it can be seen only on the metal texture under the box)
+
+
+## Resources
+  - Just a few websites for models: [Turbosquid](https://www.turbosquid.com/Search/3D-Models), [Sketchfab](https://sketchfab.com/3d-models), [Artec3D](https://www.artec3d.com/3d-models), [CGtrader](https://www.cgtrader.com/3d-models)
+  - Models
+    - [Astronaut](https://sketchfab.com/3d-models/astronaut-obj-sva-sva-23512-0c780fc92a1c420bb2286cc19a400034) ([`Sketchfab`](https://sketchfab.com/3d-models))
+    - [Rocket](https://www.turbosquid.com/3d-models/3d-toy-rocket-4k-free-1973134) ([`Turbosquid`](https://www.turbosquid.com/Search/3D-Models))
+    - [Mars](https://www.turbosquid.com/3d-models/realistic-mars-photorealistic-2k-3d-1277433) ([`Turbosquid`](https://www.turbosquid.com/Search/3D-Models))
+    - [Earth](https://www.turbosquid.com/3d-models/earth-max-free/1016431) ([`Turbosquid`](https://www.turbosquid.com/Search/3D-Models))
+    - [Sun](https://sketchfab.com/3d-models/the-sun-0d28aa65eb174d948c2716d73e8fd3bd) ([`Sketchfab`](https://sketchfab.com/3d-models))
+  - Textures:
+    - Skybox (~link~)
+    - The rest was built in [Photoshop-u](https://www.adobe.com/products/photoshop.html)
+
+
 ## Lectures implementation
 - Required lectures:
   - [x] weeks 1-8
