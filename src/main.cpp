@@ -157,7 +157,6 @@ int main() {
     stbi_set_flip_vertically_on_load(true);
 
     programState = new ProgramState;
-//    programState->LoadFromFile("resources/program_state.txt");
     if(programState->ImGuiEnabled) {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
@@ -176,6 +175,9 @@ int main() {
     glDepthFunc(GL_LESS);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
+    glFrontFace(GL_CW);
 
     // build and compile shaders
     // -------------------------
@@ -183,9 +185,8 @@ int main() {
     Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
     Shader blendingShader("resources/shaders/blending.vs", "resources/shaders/blending.fs");
     Shader faceCullingShader("resources/shaders/face_culling.vs", "resources/shaders/face_culling.fs");
-    Shader blinnPhongShader("resources/shaders/blinn-phong.vs", "resources/shaders/blinn-phong.fs");
+    Shader blinnPhongTextureShader("resources/shaders/blinn-phong_texture.vs", "resources/shaders/blinn-phong_texture.fs");
 
-    // load models
     Model modelEarth("resources/objects/earth/Earth.obj");
     modelEarth.SetShaderTextureNamePrefix("material.");
     Model modelRocket("resources/objects/rocket/Toy_Rocket.obj");
@@ -429,8 +430,8 @@ int main() {
 
     unsigned int floorTexture = loadTexture(FileSystem::getPath("resources/textures/metal_texture.png").c_str());
 
-    blinnPhongShader.use();
-    blinnPhongShader.setInt("texture1", 0);
+    blinnPhongTextureShader.use();
+    blinnPhongTextureShader.setInt("texture1", 0);
 
     PointLight& pointLight = programState->pointLight;
     pointLight.position = glm::vec3(-26.0f, 22.0f, 16.0f);
@@ -438,10 +439,9 @@ int main() {
     pointLight.diffuse = glm::vec3(0.6, 0.6, 0.6);
     pointLight.specular = glm::vec3(1.0, 1.0, 1.0);
 
-    pointLight.constant = 0.0f;
-    pointLight.linear = 0.05f;
-    pointLight.quadratic = 0.0f;
-
+    pointLight.constant = 1.0f;
+    pointLight.linear = 0.014f;
+    pointLight.quadratic = 0.0007f;
 
     // draw in wireframe
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -463,14 +463,14 @@ int main() {
         glClearColor(programState->clearColor.r, programState->clearColor.g, programState->clearColor.b, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        blinnPhongShader.use();
+        blinnPhongTextureShader.use();
         glm::mat4 projection = glm::perspective(glm::radians(programState->camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = programState->camera.GetViewMatrix();
-        blinnPhongShader.setMat4("projection", projection);
-        blinnPhongShader.setMat4("view", view);
-        blinnPhongShader.setVec3("viewPos", programState->camera.Position);
-        blinnPhongShader.setVec3("lightPos", pointLight.position);
-        blinnPhongShader.setInt("blinn", blinn);
+        blinnPhongTextureShader.setMat4("projection", projection);
+        blinnPhongTextureShader.setMat4("view", view);
+        blinnPhongTextureShader.setVec3("viewPos", programState->camera.Position);
+        blinnPhongTextureShader.setVec3("lightPos", pointLight.position);
+        blinnPhongTextureShader.setInt("blinn", blinn);
 
         glBindVertexArray(metalTextureVerticesVAO);
         glActiveTexture(GL_TEXTURE0);
@@ -526,16 +526,24 @@ int main() {
         modelAstronaut.Draw(ourShader);
 
         ourShader.use();
-        ourShader.setVec3("pointLight.position", pointLight.position);
-        ourShader.setVec3("pointLight.ambient", pointLight.ambient);
-        ourShader.setVec3("pointLight.diffuse", pointLight.diffuse);
-        ourShader.setVec3("pointLight.specular", pointLight.specular);
-        ourShader.setFloat("pointLight.constant", pointLight.constant);
-        ourShader.setFloat("pointLight.linear", pointLight.linear);
-        ourShader.setFloat("pointLight.quadratic", pointLight.quadratic);
+
+        ourShader.setVec3("dirLight.direction", -30.0f, -50.0f, 0.0f);
+        ourShader.setVec3("dirLight.ambient", 0.06, 0.06, 0.06);
+        ourShader.setVec3("dirLight.diffuse",  0.6f,0.2f,0.2);
+        ourShader.setVec3("dirLight.specular", 0.1, 0.1, 0.1);
+
+        ourShader.setVec3("pointLight[0].position", pointLight.position);
+        ourShader.setVec3("pointLight[0].ambient", pointLight.ambient);
+        ourShader.setVec3("pointLight[0].diffuse", pointLight.diffuse);
+        ourShader.setVec3("pointLight[0].specular", pointLight.specular);
+        ourShader.setFloat("pointLight[0].constant", pointLight.constant);
+        ourShader.setFloat("pointLight[0].linear", pointLight.linear);
+        ourShader.setFloat("pointLight[0].quadratic", pointLight.quadratic);
+
         ourShader.setVec3("viewPosition", programState->camera.Position);
         ourShader.setFloat("material.shininess", 32.0f);
-        projection = glm::perspective(glm::radians(programState->camera.Zoom),(float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
+        projection = glm::perspective(glm::radians(programState->camera.Zoom),
+                                                (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
         view = programState->camera.GetViewMatrix();
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
